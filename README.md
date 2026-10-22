@@ -2,20 +2,26 @@
 
 纯前端 PDF 页面整理工具。所有文件均在浏览器本地读取和处理，不会上传到服务器。支持多 PDF 页面合并、页面预览、选择/重排页面及输出为原始尺寸、A4 或 A3。
 
-## 本地开发
+## 本地测试
 
 需要 Node.js 20 或更高版本：
 
 ```sh
-npm install
+npm ci
 npm run dev
 ```
 
-生产构建：
+打开终端显示的本地地址（通常是 `http://localhost:5173`），在浏览器里选择 PDF 进行测试。生产版本本地预览：
 
 ```sh
 npm run build
 npm run preview
+```
+
+打开 preview 命令显示的地址（通常是 `http://localhost:4173`）。如果 Windows 临时目录权限导致构建出错，可将临时目录设为项目内路径后再运行：
+
+```powershell
+$env:TEMP="$PWD\.tmp"; $env:TMP="$PWD\.tmp"; New-Item -ItemType Directory -Force $env:TEMP | Out-Null; npm run build
 ```
 
 构建产物位于 `dist/`。
