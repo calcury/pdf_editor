@@ -3,13 +3,17 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "vite build",
     "dev": "vite",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@jspawn/ghostscript-wasm": "^0.0.2",
+    "@jspawn/jspawn": "^0.5.0",
     "pdf-lib": "1.17.1",
     "pdfjs-dist": "4.10.38"
   },
