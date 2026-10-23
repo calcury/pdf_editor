@@ -1,6 +1,7 @@
 import { PDFDocument } from 'pdf-lib';
 import * as pdfjs from 'pdfjs-dist';
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+import {translations} from './i18n.js';
 pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
 let compressorWorker;
 async function initializeApp(){
@@ -44,8 +45,13 @@ function compressPdfWithGhostscript(bytes,ratio,totalPages){return new Promise((
 });}
 
 
-let sources = [], pages = [], selected = new Set(), order = [], outputUrl = null, usedBytes = 0;
-const $ = id => document.getElementById(id), area = $('uploadArea'), LIMIT = 500 * 1024 * 1024, MAX_PAGES = 300;
+const $ = id => document.getElementById(id);
+let sources = [], pages = [], selected = new Set(), order = [], outputUrl = null, usedBytes = 0, language='en';
+function applyLanguage(){const t=translations[language];document.documentElement.lang=language;document.querySelector('.upload strong').textContent=t.upload;document.querySelector('.files h3').textContent=t.uploaded;document.querySelector('#sizeSetting h3').textContent=t.pageSize;document.querySelector('#pagesSetting h3').textContent=t.keepPages;document.querySelector('#compressSetting h3').textContent=t.compress;document.querySelector('#processBtn').textContent=t.apply;document.querySelector('#downloadBtn').textContent=t.download;document.querySelector('.download-name-label').textContent=t.fileName;document.querySelector('#pages').placeholder=t.placeholder;document.querySelector('.preview-box .help').textContent=t.pageHelp;document.querySelector('#languageToggle').checked=language==='zh';}
+$('themeToggle').onchange=()=>{document.body.classList.toggle('dark',$('themeToggle').checked);localStorage.setItem('pdf-editor-theme',$('themeToggle').checked?'dark':'light');};
+$('languageToggle').onchange=()=>{language=$('languageToggle').checked?'zh':'en';applyLanguage();localStorage.setItem('pdf-editor-language',language);};
+const savedTheme=localStorage.getItem('pdf-editor-theme');if(savedTheme==='dark'){document.body.classList.add('dark');$('themeToggle').checked=true;}language=localStorage.getItem('pdf-editor-language')==='zh'?'zh':'en';applyLanguage();
+const area = $('uploadArea'), LIMIT = 500 * 1024 * 1024, MAX_PAGES = 300;
 function setLoadStatus(text){$('loadStatusText').textContent=text;}
 let compressionProgressHideTimer;
 function setCompressionProgress(current,total,label='Compressing PDF'){const panel=$('compressionProgress'),bar=$('compressionProgressBar'),count=$('compressionProgressCount'),caption=$('compressionProgressLabel');clearTimeout(compressionProgressHideTimer);const max=Math.max(0,Number(total)||0),value=Math.min(max,Math.max(0,Number(current)||0)),percent=max?Math.round(value/max*100):0;panel.hidden=false;caption.textContent=label;count.textContent=`${value}/${max||'?'}`;bar.style.width=`${percent}%`;bar.setAttribute('aria-valuenow',String(percent));bar.setAttribute('aria-valuemin','0');bar.setAttribute('aria-valuemax','100');}
@@ -94,7 +100,7 @@ async function loadFiles(files) {
     const wasEmpty=sources.length===0;sources.push(...added); if(wasEmpty)$('downloadName').value=defaultDownloadName(); usedBytes += files.reduce((n,f)=>n+f.size,0); selected = new Set(pages.map((_,i)=>i)); order = pages.map((_,i)=>i);
     $('memoryText').textContent = `${(usedBytes/1048576).toFixed(2)} MB / 500 MB`; $('memoryBar').style.width = Math.min(100, usedBytes/LIMIT*100)+'%';
     renderFileList();
-    $('pages').value=''; $('downloadBtn').classList.remove('show'); render(); markChanged(); setProgress(100); show('ok', 'PDF loaded locally. Nothing was uploaded.');
+    $('pages').value=''; $('downloadBtn').classList.remove('show'); render(); markChanged(); setProgress(100); show('ok', 'Ready');
   } catch (err) { show('error', `Load failed: ${err.message || 'Unsupported or encrypted PDF'}`); }
   finally { btn.disabled = false; }
 }
